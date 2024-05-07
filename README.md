@@ -19,9 +19,11 @@ as follow.
 }
 ```
 
-If the object is straight coming from `node-red-contrib-whatsapp-link` node, it should all be available
+If the object is straight coming from [node-red-contrib-whatsapp-link](https://github.com/raweee/node-red-contrib-whatsapp-link), it should all be available
 
 Result is stored at `msg.imageMessageBuffer` as Buffer
+
+If you chain it with [node-red-contrib-image-tools](https://github.com/Steve-Mcl/node-red-contrib-image-tools), you should be able to check the picture in `viewer` node.
 
 ## TODO
 
