@@ -7,6 +7,11 @@ module.exports = function (RED) {
     this.name = config.name;
 
     node.on('input', async function (msg) {
+      if (!msg.payload || !msg.payload.message || !msg.payload.message.imageMessage) {
+        node.send(msg);
+        return;
+      }
+
       const { getWhatsappImageMedia } = await import('./src/decryptWhatsappMedia.mjs');
       try {
         const response = await getWhatsappImageMedia(msg.payload.message.imageMessage);
@@ -23,5 +28,5 @@ module.exports = function (RED) {
     });
   }
 
-  RED.nodes.registerType("decrypt-whatsapp-media", DecryptWAMedia);
+  RED.nodes.registerType("decrypt-media", DecryptWAMedia);
 }

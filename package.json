@@ -25,7 +25,6 @@
   "author": "Steven Poon",
   "license": "MIT",
   "dependencies": {
-    "crypto": "^1.0.1",
     "futoin-hkdf": "^1.5.3"
   },
   "devDependencies": {
