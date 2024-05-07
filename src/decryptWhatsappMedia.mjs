@@ -11,11 +11,25 @@ export const getWhatsappImageMedia = async function(imageMessage) {
   if (imageMessage.mimetype !== 'image/jpeg') {
     return null;
   }
-  const decryptedData = await decryptImageMedia(imageMessage.url, imageMessage.fileEncSha256, imageMessage.mediaKey);
 
-  if (imageMessage.fileLength.low !== decryptedData.length) {
-    console.error("Decrypted file length does not match", imageMessage.fileLength, decryptedData.length);
-    return null;
+  let fileEncSHa256 = Buffer.from(imageMessage.fileEncSha256);
+  if (typeof imageMessage.fileEncSha256 === 'string') {
+    fileEncSHa256 = Buffer.from(imageMessage.fileEncSha256, 'base64');
+  }
+  const decryptedData = await decryptImageMedia(imageMessage.url, fileEncSHa256, imageMessage.mediaKey);
+
+  if (typeof imageMessage.fileLength === 'string') {
+    if (imageMessage.fileLength !== decryptedData.length.toString()) {
+      console.error("Decrypted file length does not match", imageMessage.fileLength, decryptedData.length);
+      return null;
+    }
+  } else {
+    // the format from whatsapp link being Long { low: val, high: val, unsigned: bool }
+    // don't want to handle a customized format for now
+    if (imageMessage.fileLength.low !== decryptedData.length) {
+      console.error("Decrypted file length does not match", imageMessage.fileLength, decryptedData.length);
+      return null;
+    }  
   }
   
   return decryptedData;
@@ -35,7 +49,7 @@ export const decryptImageMedia = async function(encFileURL, encFileHashExpected,
 
   const encFileData = await downloadFileIntoBuffer(encFileURL);
   const encHash = crypto.createHash('sha256').update(encFileData).digest();
-  if (encHash.toString('base64') !== Buffer.from(encFileHashExpected).toString('base64')) {
+  if (encHash.toString('base64') !== encFileHashExpected.toString('base64')) {
     throw new Error("Encrypted file hash does not match");
   }
 

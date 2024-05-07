@@ -23,7 +23,7 @@ async function writeToFile(data, filePath) {
 async function main() {
   const decryptedData = await decryptImageMedia(
     process.env.ENC_MEDIA_URL,
-    process.env.ENC_MEDIA_SHA256,
+    Buffer.from(process.env.ENC_MEDIA_SHA256, 'base64'),
     process.env.MEDIA_KEY
   )
   await writeToFile(decryptedData, "./decrypted_file.jpeg");

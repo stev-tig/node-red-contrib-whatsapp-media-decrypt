@@ -14,7 +14,7 @@ as follow.
   "url": "url of the file.enc file, <https://mmg.whatsapp.net/o1/...>",
   "mimetype": "image/jpeg",
   "fileLength": "1234567",
-  "fileEncSha256": "hash of encrypted file",
+  "fileEncSha256": "hash of encrypted file in base64",
   "mediaKey": "decryption key"
 }
 ```
