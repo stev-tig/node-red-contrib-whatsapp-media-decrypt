@@ -1,0 +1,39 @@
+<!-- node -->
+<script type="text/javascript">
+  RED.nodes.registerType('decrypt-whatsapp-media', {
+    category: 'whatsapp',
+    defaults: {},
+    inputs: 1,
+    outputs: 1,
+    color: "#CCB2FF",
+    icon: "whatsapp.svg",
+    label: function () {
+      return this.name || "decrypt whatsapp media";
+    }
+  });
+</script>
+
+<script type="text/html" data-help-name="aoai-chatgpt">
+  <p>Connect to Azure OpenAI ChatGPT service</p>
+
+  <h3>Inputs</h3>
+  <dl class="message-properties">
+    <dt>payload.message.imageMessage.url <span class="property-type">string</span></dt>
+    <dd> url of the whatsapp media</dd>
+    <dt>payload.message.imageMessage.mimetype <span class="property-type">string</span></dt>
+    <dd> mimetype of the media, e.g. 'image/jpeg'</dd>
+    <dt>payload.message.imageMessage.fileLength <span class="property-type">string</span></dt>
+    <dd> the length of the decrypted file (in string, not numeric)</dd>
+    <dt>payload.message.imageMessage.fileEncSha256 <span class="property-type">string</span></dt>
+    <dd> sha256 hash of the encrypted file</dd>
+    <dt>payload.message.imageMessage.mediaKey <span class="property-type">string</span></dt>
+    <dd> decryption key of the media</dd>
+  </dl>
+
+  <h3>Outputs</h3>
+  <dl class="message-properties">
+    <dt>msg.payload.message.imageMessageBuffer <span class="property-type">Buffer</span></dt>
+    <dd> image response as buffer</dd>
+  </dl>
+
+</script>
