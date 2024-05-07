@@ -13,7 +13,8 @@ export const getWhatsappImageMedia = async function(imageMessage) {
   }
   const decryptedData = await decryptImageMedia(imageMessage.url, imageMessage.fileEncSha256, imageMessage.mediaKey);
 
-  if (imageMessage.fileLength !== decryptedData.length) {
+  if (imageMessage.fileLength.low !== decryptedData.length) {
+    console.error("Decrypted file length does not match", imageMessage.fileLength, decryptedData.length);
     return null;
   }
   
@@ -34,7 +35,7 @@ export const decryptImageMedia = async function(encFileURL, encFileHashExpected,
 
   const encFileData = await downloadFileIntoBuffer(encFileURL);
   const encHash = crypto.createHash('sha256').update(encFileData).digest();
-  if (encHash.toString('base64') !== encFileHashExpected) {
+  if (encHash.toString('base64') !== Buffer.from(encFileHashExpected).toString('base64')) {
     throw new Error("Encrypted file hash does not match");
   }
 

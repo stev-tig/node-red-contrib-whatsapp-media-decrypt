@@ -6,7 +6,7 @@ This project is used to decrypt whatsapp encrypted media file "file.enc" downloa
 
 ## To Use
 
-put the image message in `msg.payload.message.imageMessage`
+put the image message in `msg.message.imageMessage`
 as follow.
 
 ```json
@@ -21,7 +21,7 @@ as follow.
 
 If the object is straight coming from `node-red-contrib-whatsapp-link` node, it should all be available
 
-Result is stored at `msg.payload.message.imageMessageBuffer` as Buffer
+Result is stored at `msg.imageMessageBuffer` as Buffer
 
 ## TODO
 

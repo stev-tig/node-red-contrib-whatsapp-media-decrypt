@@ -7,19 +7,20 @@ module.exports = function (RED) {
     this.name = config.name;
 
     node.on('input', async function (msg) {
-      if (!msg.payload || !msg.payload.message || !msg.payload.message.imageMessage) {
+      if (!(msg.message && msg.message.imageMessage)) {
         node.send(msg);
         return;
       }
 
       const { getWhatsappImageMedia } = await import('./src/decryptWhatsappMedia.mjs');
       try {
-        const response = await getWhatsappImageMedia(msg.payload.message.imageMessage);
-        msg.payload.message.imageMessageBuffer = response;
+        const response = await getWhatsappImageMedia(msg.message.imageMessage);
+        msg.imageMessageBuffer = response;
         node.send(msg);
 
       } catch (err) {
         console.error("encountered an error:", err);
+        return;
       }
     });
 
