@@ -12,11 +12,11 @@ export const getWhatsappImageMedia = async function(imageMessage) {
     return null;
   }
 
-  let fileEncSHa256 = Buffer.from(imageMessage.fileEncSha256);
+  let fileEncSha256 = Buffer.from(imageMessage.fileEncSha256);
   if (typeof imageMessage.fileEncSha256 === 'string') {
-    fileEncSHa256 = Buffer.from(imageMessage.fileEncSha256, 'base64');
+    fileEncSha256 = Buffer.from(imageMessage.fileEncSha256, 'base64');
   }
-  const decryptedData = await decryptImageMedia(imageMessage.url, fileEncSHa256, imageMessage.mediaKey);
+  const decryptedData = await decryptImageMedia(imageMessage.url, fileEncSha256, imageMessage.mediaKey);
 
   if (typeof imageMessage.fileLength === 'string') {
     if (imageMessage.fileLength !== decryptedData.length.toString()) {
@@ -45,7 +45,6 @@ export const decryptImageMedia = async function(encFileURL, encFileHashExpected,
 
   let iv = mediaKeyExpanded.subarray(0, 16);
   let cipherKey = mediaKeyExpanded.subarray(16, 48);
-  // let macKey = mediaKeyExpanded.subarray(48, 80);
 
   const encFileData = await downloadFileIntoBuffer(encFileURL);
   const encHash = crypto.createHash('sha256').update(encFileData).digest();
@@ -55,12 +54,10 @@ export const decryptImageMedia = async function(encFileURL, encFileHashExpected,
 
   let fileLen = encFileData.length - 10;
   let file = encFileData.subarray(0, fileLen);
-  // let mac = encFileData.subarray(fileLen);
 
   const decipher = crypto.createDecipheriv('aes-256-cbc', cipherKey, iv);
   let decryptedData = decipher.update(file);
   decryptedData = Buffer.concat([decryptedData, decipher.final()]);
 
   return decryptedData;
-  // console.log("length of decryptedData: ", decryptedData.length);
 }
