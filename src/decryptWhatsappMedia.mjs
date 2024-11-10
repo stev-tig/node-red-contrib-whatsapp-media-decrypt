@@ -7,41 +7,34 @@ async function downloadFileIntoBuffer(url) {
   return Buffer.from(buffer);
 }
 
-export const getWhatsappImageMedia = async function(imageMessage) {
-  if (imageMessage.mimetype !== 'image/jpeg') {
-    return null;
-  }
+export const getWhatsappMedia = async function(mediaMessage, mediaType) {
+  const { url, fileEncSha256, mediaKey, fileLength } = mediaMessage;
 
-  let fileEncSha256 = Buffer.from(imageMessage.fileEncSha256);
-  if (typeof imageMessage.fileEncSha256 === 'string') {
-    fileEncSha256 = Buffer.from(imageMessage.fileEncSha256, 'base64');
-  }
-  const decryptedData = await decryptImageMedia(imageMessage.url, fileEncSha256, imageMessage.mediaKey);
+  let fileEncSha256Buffer = Buffer.from(fileEncSha256, 'base64');
 
-  if (typeof imageMessage.fileLength === 'string') {
-    if (imageMessage.fileLength !== decryptedData.length.toString()) {
-      console.error("Decrypted file length does not match", imageMessage.fileLength, decryptedData.length);
+  const decryptedData = await decryptMedia(url, fileEncSha256Buffer, mediaKey, mediaType);
+
+  if (typeof fileLength === 'string') {
+    if (fileLength !== decryptedData.length.toString()) {
+      console.error("Decrypted file length does not match", fileLength, decryptedData.length);
       return null;
     }
   } else {
-    // the format from whatsapp link being Long { low: val, high: val, unsigned: bool }
-    // don't want to handle a customized format for now
-    if (imageMessage.fileLength.low !== decryptedData.length) {
-      console.error("Decrypted file length does not match", imageMessage.fileLength, decryptedData.length);
+    if (fileLength.low !== decryptedData.length) {
+      console.error("Decrypted file length does not match", fileLength, decryptedData.length);
       return null;
-    }  
+    }
   }
-  
+
   return decryptedData;
 }
 
-export const decryptImageMedia = async function(encFileURL, encFileHashExpected, mediaKey) {
+export const decryptMedia = async function(encFileURL, encFileHashExpected, mediaKey, mediaType) {
   const mediaKeyBlob = Buffer.from(mediaKey, 'base64');
 
   const hash_len = hkdf.hash_length('sha256');
   const prk = hkdf.extract('sha256', hash_len, mediaKeyBlob, null);
-  const mediaKeyExpanded = hkdf.expand('sha256', hash_len, prk, 112, "WhatsApp Image Keys");
-
+  const mediaKeyExpanded = hkdf.expand('sha256', hash_len, prk, 112, mediaType);
 
   let iv = mediaKeyExpanded.subarray(0, 16);
   let cipherKey = mediaKeyExpanded.subarray(16, 48);

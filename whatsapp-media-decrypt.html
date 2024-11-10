@@ -24,26 +24,25 @@
 
 
 <script type="text/html" data-help-name="decrypt-media">
-  <p>Connect to Azure OpenAI ChatGPT service</p>
+  <p>Decrypts WhatsApp media messages (image, audio, document).</p>
 
   <h3>Inputs</h3>
   <dl class="message-properties">
-    <dt>msg.message.imageMessage.url <span class="property-type">string</span></dt>
-    <dd> url of the whatsapp media</dd>
-    <dt>msg.message.imageMessage.mimetype <span class="property-type">string</span></dt>
-    <dd> mimetype of the media, e.g. 'image/jpeg'</dd>
-    <dt>msg.message.imageMessage.fileLength <span class="property-type">string</span></dt>
-    <dd> the length of the decrypted file</dd>
-    <dt>.msg.essage.imageMessage.fileEncSha256 <span class="property-type">string</span></dt>
-    <dd> sha256 hash of the encrypted file</dd>
-    <dt>msg.message.imageMessage.mediaKey <span class="property-type">string</span></dt>
-    <dd> decryption key of the media</dd>
+    <dt>msg.message.imageMessage <span class="property-type">object</span></dt>
+    <dd>Contains properties of the image message.</dd>
+    <dt>msg.message.audioMessage <span class="property-type">object</span></dt>
+    <dd>Contains properties of the audio message.</dd>
+    <dt>msg.message.documentMessage <span class="property-type">object</span></dt>
+    <dd>Contains properties of the document message.</dd>
   </dl>
 
   <h3>Outputs</h3>
   <dl class="message-properties">
     <dt>msg.imageMessageBuffer <span class="property-type">Buffer</span></dt>
-    <dd> image response as buffer</dd>
+    <dd>Decrypted image data as a Buffer.</dd>
+    <dt>msg.audioMessageBuffer <span class="property-type">Buffer</span></dt>
+    <dd>Decrypted audio data as a Buffer.</dd>
+    <dt>msg.documentMessageBuffer <span class="property-type">Buffer</span></dt>
+    <dd>Decrypted document data as a Buffer.</dd>
   </dl>
-
 </script>
