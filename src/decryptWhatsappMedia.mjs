@@ -7,50 +7,48 @@ async function downloadFileIntoBuffer(url) {
   return Buffer.from(buffer);
 }
 
-export const getWhatsappMedia = async function(mediaMessage, mediaType) {
-  const { url, fileEncSha256, mediaKey, fileLength } = mediaMessage;
+export const getWhatsappMedia = async function({ url, fileEncSha256, mediaKey, fileLength }, mediaType) {
 
-  let fileEncSha256Buffer = Buffer.from(fileEncSha256, 'base64');
+  // Convert fileEncSha256 to Buffer if it's a base64 string
+  let fileEncSha256Buffer = Buffer.isBuffer(fileEncSha256)
+    ? fileEncSha256
+    : Buffer.from(fileEncSha256, 'base64');
 
   const decryptedData = await decryptMedia(url, fileEncSha256Buffer, mediaKey, mediaType);
 
-  if (typeof fileLength === 'string') {
-    if (fileLength !== decryptedData.length.toString()) {
-      console.error("Decrypted file length does not match", fileLength, decryptedData.length);
-      return null;
-    }
-  } else {
-    if (fileLength.low !== decryptedData.length) {
-      console.error("Decrypted file length does not match", fileLength, decryptedData.length);
-      return null;
-    }
+  // File length verification
+  const decryptedDataLength = decryptedData.length;
+  const expectedFileLength = typeof fileLength === 'string' ? parseInt(fileLength) : fileLength.low;
+
+  if (expectedFileLength !== decryptedDataLength) {
+    console.error("Decrypted file length does not match", expectedFileLength, decryptedDataLength);
+    throw new Error("Decrypted file length does not match");
   }
 
   return decryptedData;
 }
 
 export const decryptMedia = async function(encFileURL, encFileHashExpected, mediaKey, mediaType) {
-  const mediaKeyBlob = Buffer.from(mediaKey, 'base64');
+  const mediaKeyBuffer = Buffer.from(mediaKey, 'base64');
 
-  const hash_len = hkdf.hash_length('sha256');
-  const prk = hkdf.extract('sha256', hash_len, mediaKeyBlob, null);
-  const mediaKeyExpanded = hkdf.expand('sha256', hash_len, prk, 112, mediaType);
+  const hashLen = hkdf.hash_length('sha256');
+  const prk = hkdf.extract('sha256', hashLen, mediaKeyBuffer, null);
+  const mediaKeyExpanded = hkdf.expand('sha256', hashLen, prk, 112, mediaType);
 
-  let iv = mediaKeyExpanded.subarray(0, 16);
-  let cipherKey = mediaKeyExpanded.subarray(16, 48);
+  const iv = mediaKeyExpanded.subarray(0, 16);
+  const cipherKey = mediaKeyExpanded.subarray(16, 48);
 
   const encFileData = await downloadFileIntoBuffer(encFileURL);
   const encHash = crypto.createHash('sha256').update(encFileData).digest();
-  if (encHash.toString('base64') !== encFileHashExpected.toString('base64')) {
+
+  if (!encHash.equals(encFileHashExpected)) {
     throw new Error("Encrypted file hash does not match");
   }
 
-  let fileLen = encFileData.length - 10;
-  let file = encFileData.subarray(0, fileLen);
+  const fileData = encFileData.subarray(0, encFileData.length - 10);
 
   const decipher = crypto.createDecipheriv('aes-256-cbc', cipherKey, iv);
-  let decryptedData = decipher.update(file);
-  decryptedData = Buffer.concat([decryptedData, decipher.final()]);
+  let decryptedData = Buffer.concat([decipher.update(fileData), decipher.final()]);
 
   return decryptedData;
 }

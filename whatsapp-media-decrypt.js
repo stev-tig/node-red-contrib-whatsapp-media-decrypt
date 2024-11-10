@@ -12,13 +12,16 @@ module.exports = function (RED) {
         let response;
         try {
           if (msg.message.imageMessage) {
-            response = await getWhatsappMedia(msg.message.imageMessage, "WhatsApp Image Keys");
+            const { url, fileEncSha256, mediaKey, fileLength } = msg.message.imageMessage;
+            response = await getWhatsappMedia({ url, fileEncSha256, mediaKey, fileLength }, "WhatsApp Image Keys");
             msg.imageMessageBuffer = response;
           } else if (msg.message.audioMessage) {
-            response = await getWhatsappMedia(msg.message.audioMessage, "WhatsApp Audio Keys");
+            const { url, fileEncSha256, mediaKey, fileLength } = msg.message.audioMessage;
+            response = await getWhatsappMedia({ url, fileEncSha256, mediaKey, fileLength }, "WhatsApp Audio Keys");
             msg.audioMessageBuffer = response;
           } else if (msg.message.documentMessage) {
-            response = await getWhatsappMedia(msg.message.documentMessage, "WhatsApp Document Keys");
+            const { url, fileEncSha256, mediaKey, fileLength } = msg.message.documentMessage;
+            response = await getWhatsappMedia({ url, fileEncSha256, mediaKey, fileLength }, "WhatsApp Document Keys");
             msg.documentMessageBuffer = response;
           } else {
             node.send(msg);
@@ -28,6 +31,7 @@ module.exports = function (RED) {
 
         } catch (err) {
           console.error("Encountered an error:", err);
+          node.error(err.message, msg);
           return;
         }
       } else {
